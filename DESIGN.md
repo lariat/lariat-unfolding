@@ -31,6 +31,7 @@ User Inputs
   - TH1 histogram N data events reconstructed as a function of reconstructed KE
   - optional TH1 histogram N simulation events reconstructed as a function of reconstructed KE
   - optional TH1 histogram N simulation events reconstructed as a function of true KE
+  - optional TH1 histogram N simulation true events as a function of true KE
   - TH1 histogram estimate of N background events reconstructed as a function of reconstructed KE (histogram errors are 1 sigma systematic uncertainties on background, can be 0)
   - TH1 histogram estimate of the signal efficiency as a function of true KE (histogram errors are 1 sigma systematic uncertainties on efficiency, can be 0)
   - TH2 2D histogram migration matrix of only signal events. Y-binning should be reco, X-binning should be true. This is only for events that are reconstructed. Doesn't have to be normalized.
