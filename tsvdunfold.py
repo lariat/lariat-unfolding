@@ -4,6 +4,7 @@ TSVDUnfold implementation of the Unfolding class
 
 import ROOT
 from unfold_base import Unfolding, UnfoldResult
+import utilities
 
 class UnfoldingTSVDUnfold(Unfolding):
     """
@@ -30,6 +31,16 @@ class UnfoldingTSVDUnfold(Unfolding):
         if isinstance(simTrueHist,ROOT.TH2):
             raise NotImplementedError("simTrueHist inherits from TH2, 2D unfolding not yet implemented")
 
+
+        if not isinstance(reconstructedHist,ROOT.TH1D):
+            raise TypeError("reconstructedHist must be TH1D not",type(reconstructedHist))
+        if not isinstance(migrationMatrix,ROOT.TH2D):
+            raise TypeError("migrationMatrix must be TH2D not",type(migrationMatrix))
+        if not isinstance(simRecoHist,ROOT.TH1D):
+            raise TypeError("simRecoHist must be TH1D not",type(simRecoHist))
+        if not isinstance(simTrueHist,ROOT.TH1D):
+            raise TypeError("simTrueHist must be TH1D not",type(simTrueHist))
+
         self.simRecoHist = simRecoHist
         self.simTrueHist = simTrueHist
 
@@ -45,7 +56,7 @@ class UnfoldingTSVDUnfold(Unfolding):
         """
 
         resultHist = self.tsvdunfold.Unfold(parameter)
-        unfoldingMatrix = None
+        unfoldingMatrix = utilities.Hist2DUUID(10,0,1,10,0,1) # dummy
         result = UnfoldResult(self, resultHist, unfoldingMatrix, parameter)
         return result
 
@@ -53,6 +64,8 @@ if __name__ == "__main__":
 
     from utilities import *
     import numpy
+
+    c = ROOT.TCanvas("c")
     
     N = 100
     trueData = numpy.random.rand(N) # N samples uniform [0,1)
@@ -61,19 +74,20 @@ if __name__ == "__main__":
     trueMC = numpy.random.rand(N) # N samples uniform [0,1)
     recoMC = trueData+numpy.random.rand(N)*0.1 # random normal dist
 
-    trueDataHist = HistUUID(10,0,1)
-    recoDataHist = HistUUID(10,0,1)
+    trueDataHist = HistUUID(10,0,1,TH1D=True)
+    recoDataHist = HistUUID(10,0,1,TH1D=True)
     for t, r in zip(trueData,recoData):
         trueDataHist.Fill(t)
         recoDataHist.Fill(r)
 
-    trueMCHist = HistUUID(10,0,1)
-    recoMCHist = HistUUID(10,0,1)
-    migrationMatrix = Hist2DUUID(10,0,1,10,0,1)
+    trueMCHist = HistUUID(10,0,1,TH1D=True)
+    recoMCHist = HistUUID(10,0,1,TH1D=True)
+    migrationMatrix = Hist2DUUID(10,0,1,10,0,1,TH2D=True)
     for t, r in zip(trueMC,recoMC):
         trueMCHist.Fill(t)
         recoMCHist.Fill(r)
         migrationMatrix.Fill(t,r)
     
-    u = UnfoldingTSVDUnfold(recoData,migrationMatrix,recoMCHist,trueMCHist)
-    r = u.unfold(5.)
+    u = UnfoldingTSVDUnfold(recoDataHist,migrationMatrix,recoMCHist,trueMCHist)
+    r = u.unfold(5)
+    r.plotResult("testSVD.png")

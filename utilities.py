@@ -4,9 +4,13 @@ Utility Functions
 
 import ROOT
 import uuid
+import numbers
 
 def cloneTNamedUUIDName(hist):
     return hist.Clone(uuid.uuid1().hex)
+
+def CanvasUUID():
+   return ROOT.TCanvas(uuid.uuid1().hex)
 
 def HistUUID(*args,**kargs):
   """

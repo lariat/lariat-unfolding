@@ -4,7 +4,7 @@ Base classes for low-level unfolding
 
 import ROOT
 import copy
-from utilities import cloneTNamedUUIDName
+from utilities import cloneTNamedUUIDName, CanvasUUID
 
 class Unfolding(object):
     """
@@ -51,37 +51,37 @@ class UnfoldResult(object):
 
     """
 
-    def __init__(self,unfolder, resultHist, unfoldingMatrix, parameter):
+    def __init__(self,unfolding, resultHist, unfoldingMatrix, parameter):
         """
         Inputs:
-            unfolder: Unfolder class used to create this result
-            unfoldedHist: TH1 result histogram
+            unfolding: Unfolding class object used to create this result
+            resultHist: TH1 result histogram
             unfoldingMatrix: TH2 inverted migrationMatrix
             parameter: the regularization, n-iterations, etc. input parameter
         """
 
-        if not isinstance(unfolder,Unfolder):
-            raise TypeError("unfolder doesn't inherit from Unfolder",type(unfolder))
-        if not isinstance(migrationMatrix,ROOT.TH2):
-            raise TypeError("migrationMatrix doesn't inherit from TH2",type(migrationMatrix))
+        if not isinstance(unfolding,Unfolding):
+            raise TypeError("unfolding doesn't inherit from Unfolding",type(unfolding))
+        if not isinstance(unfoldingMatrix,ROOT.TH2):
+            raise TypeError("unfoldingMatrix doesn't inherit from TH2",type(unfoldingMatrix))
 
-        if not isinstance(unfoldedHist,ROOT.TH1):
-            raise TypeError("unfoldedHist doesn't inherit from TH1",type(unfoldedHist))
-        if isinstance(unfoldedHist,ROOT.TH2):
-            raise NotImplementedError("unfoldedHist inherits from TH2, 2D unfolding not yet implemented")
+        if not isinstance(resultHist,ROOT.TH1):
+            raise TypeError("resultHist doesn't inherit from TH1",type(resultHist))
+        if isinstance(resultHist,ROOT.TH2):
+            raise NotImplementedError("resultHist inherits from TH2, 2D unfolding not yet implemented")
 
         if not isinstance(unfoldingMatrix,ROOT.TH2):
             raise TypeError("unfoldingMatrix doesn't inherit from TH2",type(unfoldingMatrix))
 
-        self.unfolder = unfolder
+        self.unfolding = unfolding
         self.resultHist = resultHist
         self.unfoldingMatrix = unfoldingMatrix
         self.parameter = parameter
 
     def getReconstructedHist(self):
-        return self.unfolder.getReconstructedHist()
+        return self.unfolding.getReconstructedHist()
     def getMigrationMatrix(self):
-        return self.unfolder.getMigrationMatrix()
+        return self.unfolding.getMigrationMatrix()
     def getResult(self):
         return cloneTNamedUUIDName(self.resultHist)
     def getUnfoldingMatrix(self):
@@ -89,7 +89,14 @@ class UnfoldResult(object):
     def getParameter(self):
         return copy.deepcopy(parameter)
 
-    def plotResult(self):
-        pass
-    def plotUnfoldingMatrix(self):
-        pass
+    def plotResult(self,outfilename):
+        c = CanvasUUID()
+        resultHist = self.getResult()
+        resultHist.Draw("E")
+        c.SaveAs(outfilename)
+        
+    def plotUnfoldingMatrix(self,outfilename):
+        c = CanvasUUID()
+        matrix = self.getUnfoldingMatrix()
+        matrix.Draw("colz")
+        c.SaveAs(outfilename)
