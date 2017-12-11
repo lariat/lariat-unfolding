@@ -51,31 +51,31 @@ class UnfoldResult(object):
 
     """
 
-    def __init__(self,unfolding, resultHist, unfoldingMatrix, parameter):
+    def __init__(self,unfolding, resultHist, covarianceMatrix, parameter):
         """
         Inputs:
             unfolding: Unfolding class object used to create this result
             resultHist: TH1 result histogram
-            unfoldingMatrix: TH2 inverted migrationMatrix
+            covarianceMatrix: TH2 showing convariance of result
             parameter: the regularization, n-iterations, etc. input parameter
         """
 
         if not isinstance(unfolding,Unfolding):
             raise TypeError("unfolding doesn't inherit from Unfolding",type(unfolding))
-        if not isinstance(unfoldingMatrix,ROOT.TH2):
-            raise TypeError("unfoldingMatrix doesn't inherit from TH2",type(unfoldingMatrix))
+        if not isinstance(covarianceMatrix,ROOT.TH2):
+            raise TypeError("covarianceMatrix doesn't inherit from TH2",type(covarianceMatrix))
 
         if not isinstance(resultHist,ROOT.TH1):
             raise TypeError("resultHist doesn't inherit from TH1",type(resultHist))
         if isinstance(resultHist,ROOT.TH2):
             raise NotImplementedError("resultHist inherits from TH2, 2D unfolding not yet implemented")
 
-        if not isinstance(unfoldingMatrix,ROOT.TH2):
-            raise TypeError("unfoldingMatrix doesn't inherit from TH2",type(unfoldingMatrix))
+        if not isinstance(covarianceMatrix,ROOT.TH2):
+            raise TypeError("covarianceMatrix doesn't inherit from TH2",type(covarianceMatrix))
 
         self.unfolding = unfolding
         self.resultHist = resultHist
-        self.unfoldingMatrix = unfoldingMatrix
+        self.covarianceMatrix = covarianceMatrix
         self.parameter = parameter
 
     def getReconstructedHist(self):
@@ -84,8 +84,8 @@ class UnfoldResult(object):
         return self.unfolding.getMigrationMatrix()
     def getResult(self):
         return cloneTNamedUUIDName(self.resultHist)
-    def getUnfoldingMatrix(self):
-        return cloneTNamedUUIDName(self.unfoldingMatrix)
+    def getCovarianceMatrix(self):
+        return cloneTNamedUUIDName(self.covarianceMatrix)
     def getParameter(self):
         return copy.deepcopy(parameter)
 
@@ -95,8 +95,8 @@ class UnfoldResult(object):
         resultHist.Draw("E")
         c.SaveAs(outfilename)
         
-    def plotUnfoldingMatrix(self,outfilename):
+    def plotCovarianceMatrix(self,outfilename):
         c = CanvasUUID()
-        matrix = self.getUnfoldingMatrix()
+        matrix = self.getCovarianceMatrix()
         matrix.Draw("colz")
         c.SaveAs(outfilename)

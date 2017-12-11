@@ -56,12 +56,13 @@ class UnfoldingTSVDUnfold(Unfolding):
         """
 
         resultHist = self.tsvdunfold.Unfold(parameter)
-        unfoldingMatrix = utilities.Hist2DUUID(10,0,1,10,0,1) # dummy
-        result = UnfoldResult(self, resultHist, unfoldingMatrix, parameter)
+        covarianceMatrix = self.tsvdunfold.GetXtau()
+        result = UnfoldResult(self, resultHist, covarianceMatrix, parameter)
         return result
 
 if __name__ == "__main__":
 
+    ROOT.gROOT.SetBatch(True)
     from utilities import *
     import numpy
 
@@ -91,3 +92,4 @@ if __name__ == "__main__":
     u = UnfoldingTSVDUnfold(recoDataHist,migrationMatrix,recoMCHist,trueMCHist)
     r = u.unfold(5)
     r.plotResult("testSVD.png")
+    r.plotCovarianceMatrix("testSVDCov.png")

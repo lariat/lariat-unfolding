@@ -22,6 +22,6 @@ class UnfoldingTUnfold(Unfolding):
         super().unfold(parameter)
         self.tunfold.DoUnfold(parameter)
         resultHist = self.tunfold.GetOutput(uuid.uuid1().hex)
-        unfoldingMatrix = self.tunfold.GetEmatrixTotal(uuid.uuid1().hex)
-        result = UnfoldResult(self,resultHist,unfoldingMatrix,parameter)
+        covarianceMatrix = self.tunfold.GetEmatrixTotal(uuid.uuid1().hex)
+        result = UnfoldResult(self,resultHist,covarianceMatrix,parameter)
         return result
