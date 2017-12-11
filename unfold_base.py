@@ -4,7 +4,7 @@ Base classes for low-level unfolding
 
 import ROOT
 import copy
-from utilities import cloneTNamedUUIDName, CanvasUUID
+from utilities import cloneTNamedUUIDName, CanvasUUID, setupCOLZFrame
 
 class Unfolding(object):
     """
@@ -13,12 +13,14 @@ class Unfolding(object):
     Subclass this for each unfolding technique
     """
 
-    def __init__(self,reconstructedHist,migrationMatrix):
+    def __init__(self,reconstructedHist,migrationMatrix,xAxisTitle="Kinetic Energy [MeV]",yAxisTitle="Counts / bin",titlePrefix=""):
         """
         Unfolding Constructor
         Inputs:
             reconstructedHist: TH1 reconstructed histogram to unfold
             migrationMatrix: TH2 migration matrix to use for unfolding true v reconstructed
+            xAxisTitle: Title for x-axis of histograms, will have reco/true/unfolded added to it
+            yAxisTitle: Title for y-axis of histograms, counts, events / bin, events / MeV etc.
         """
         if not isinstance(reconstructedHist,ROOT.TH1):
             raise TypeError("reconstructedHist doesn't inherit from TH1",type(reconstructedHist))
@@ -29,6 +31,9 @@ class Unfolding(object):
 
         self.reconstructedHist = reconstructedHist
         self.migrationMatrix = migrationMatrix
+        self.xAxisTitle = xAxisTitle
+        self.yAxisTitle = yAxisTitle
+        self.titlePrefix = titlePrefix
         
     def unfold(self,parameter=None):
         """
@@ -42,8 +47,29 @@ class Unfolding(object):
 
     def getReconstructedHist(self):
         return cloneTNamedUUIDName(self.reconstructedHist)
+
     def getMigrationMatrix(self):
         return cloneTNamedUUIDName(self.migrationMatrix)
+
+    def plotReconstructedHist(self,outfilename):
+        c = CanvasUUID()
+        hist = self.getReconstructedHist()
+        hist.Draw("E")
+        hist.GetXaxis().SetTitle("Reconstructed {}".format(self.xAxisTitle))
+        hist.GetYaxis().SetTitle("Reconstructed {}".format(self.yAxisTitle))
+        hist.SetTitle(self.titlePrefix+"Reconstructed Histogram")
+        c.SaveAs(outfilename)
+
+    def plotMigrationMatrix(self,outfilename):
+        c = CanvasUUID()
+        setupCOLZFrame(c)
+        hist = self.getMigrationMatrix()
+        hist.Draw("colz")
+        hist.GetXaxis().SetTitle("Reconstructed {}".format(self.xAxisTitle))
+        hist.GetYaxis().SetTitle("True {}".format(self.xAxisTitle))
+        hist.SetTitle(self.titlePrefix+"Migration Matrix")
+        c.SaveAs(outfilename)
+        setupCOLZFrame(c,reset=True)
 
 class UnfoldResult(object):
     """
@@ -91,12 +117,20 @@ class UnfoldResult(object):
 
     def plotResult(self,outfilename):
         c = CanvasUUID()
-        resultHist = self.getResult()
-        resultHist.Draw("E")
+        hist = self.getResult()
+        hist.Draw("E")
+        hist.GetXaxis().SetTitle("True {}".format(self.unfolding.xAxisTitle))
+        hist.GetYaxis().SetTitle("Unfolded {}".format(self.unfolding.yAxisTitle))
+        hist.SetTitle(self.unfolding.titlePrefix+"Unfolded Histogram")
         c.SaveAs(outfilename)
         
     def plotCovarianceMatrix(self,outfilename):
         c = CanvasUUID()
-        matrix = self.getCovarianceMatrix()
-        matrix.Draw("colz")
+        setupCOLZFrame(c)
+        hist = self.getCovarianceMatrix()
+        hist.Draw("colz")
+        hist.GetXaxis().SetTitle("True {}".format(self.unfolding.xAxisTitle))
+        hist.GetYaxis().SetTitle("True {}".format(self.unfolding.xAxisTitle))
+        hist.SetTitle(self.unfolding.titlePrefix+"Unfolded Covariance Matrix")
         c.SaveAs(outfilename)
+        setupCOLZFrame(c,reset=True)
