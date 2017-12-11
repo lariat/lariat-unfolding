@@ -1,15 +1,15 @@
 """
-Implemenation of low-level unfolding classes
+Implemenation of low-level unfolding class using ROOT TUnfold
 """
 
 import uuid
 import ROOT
-from unfold_base import Unfold, UnfoldResult
+from unfold_base import Unfolding, UnfoldResult
 from utilities import cloneTNamedUUIDName
 
-class UnfoldTUnfold(Unfold):
+class UnfoldingTUnfold(Unfolding):
     """
-    Unfold using ROOT TUnfold class
+    Unfolding using ROOT TUnfold class
     """
 
     def __init__(self,reconstructedHist,migrationMatrix):
