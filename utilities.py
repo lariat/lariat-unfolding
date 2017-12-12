@@ -116,9 +116,16 @@ def CreateFakeData(nData,nMC,nBinsReco,nBinsTrue,smearingData=0.1,smearingMC=0.1
     """
     trueData = numpy.random.rand(nData) # N samples uniform [0,1)
     recoData = trueData+numpy.random.randn(nData)*smearingData # random normal dist
+    # get rid of out of bounds events
+    mask = numpy.logical_and(recoData > 0.,recoData < 1.)
+    trueData = trueData[mask]
+    recoData = recoData[mask]
 
     trueMC = numpy.random.rand(nMC) # N samples uniform [0,1)
     recoMC = trueMC+numpy.random.randn(nMC)*smearingMC # random normal dist
+    mask = numpy.logical_and(recoMC > 0.,recoMC < 1.)
+    trueMC = trueMC[mask]
+    recoMC = recoMC[mask]
 
     trueDataHist = HistUUID(nBinsTrue,0,1,TH1D=True)
     recoDataHist = HistUUID(nBinsReco,0,1,TH1D=True)
